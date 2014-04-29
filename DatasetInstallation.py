@@ -38,6 +38,7 @@ import tarfile
 import argparse
 import urllib.request
 import shutil
+import glob
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -57,6 +58,15 @@ def untar(path, extract_path):
 		tar.extract(item, extract_path)
 		if item.name.find(".tgz") != -1 or item.name.find(".tar") != -1:
 			extract(item.name, "./" + item.name[:item.name.rfind('/')])
+
+def rename(dir, pattern):
+	i = 0
+	for pathAndFilename in glob.iglob(os.path.join(dir, pattern)):
+		i += 1
+		# Get title and extension of the current file
+		title, ext = os.path.splitext(os.path.basename(pathAndFilename))
+		# Rename current file
+		os.rename(pathAndFilename, os.path.join(dir, str(i) + ext))
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -97,6 +107,22 @@ if __name__ == '__main__':
 	# Untar dataset file
 	print("Untaring dataset ...")
 	untar(datasetPath + datasetFile, datasetPath)
+	
+	# Rename dataset file for each 62 datasets [1, 62]
+	print("Preparing dataset ...")
+	for i in range(1, 63):
+	
+		# Folder that contains samples
+		sampleFolder = datasetPath + "English/Fnt/Sample"
+
+		# Default folder name of the dataset
+		folderPath = sampleFolder + str(i).zfill(3);
+		
+		# Rename each file in the folder to be accessed more easily
+		rename(folderPath, r'*.png')
+		
+		# Rename folder to be accessed more easily
+		os.rename(folderPath, sampleFolder + str(i));
 	
 	print("Dataset successfully installed !")
 	
