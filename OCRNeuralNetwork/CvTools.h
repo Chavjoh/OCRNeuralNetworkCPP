@@ -22,7 +22,7 @@ public:
 	static Mat parseImage(string imagePath);
 	static void writePixelValue(fstream &file, int* pixelValue, int character);
 	static void imageToPixelValue(string imagePath, int* pixelValue);
-	static void writeDataset(std::string datasetPath, int sampleNumber, std::string outputfile);
+	static void writeDataset(std::string datasetPath, int sampleStart, int sampleStop, std::string outputfile);
 	static void readDataset(char *filename, Mat &data, Mat &classes, int sampleNumber);
 	static void loadDataToMat(int pixelArray[], Mat &data);
 	static int searchMaxWeight(Mat &classificationResult);

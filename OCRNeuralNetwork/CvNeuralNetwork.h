@@ -8,16 +8,13 @@
 #include "CppTools.h"
 #include "CvTools.h"
 
-#define TRAINING_SAMPLES 3050 // Number of samples in training dataset
-#define TEST_SAMPLES 1170 // Number of samples in test dataset
-
 using namespace std;
 using namespace cv;
 
 class CvNeuralNetwork
 {
 public:
-	CvNeuralNetwork(string datasetPath, string trainingPath, string testPath, string nnParametersPath);
+	CvNeuralNetwork(string datasetPath, string trainingPath, string testPath, string nnParametersPath, int trainingNumber, int testingNumber);
 	~CvNeuralNetwork();
 
 	void setDebugMode(bool debugMode);
@@ -39,6 +36,9 @@ private:
 	string trainingPath;
 	string testPath;
 	string nnParametersPath;
+
+	int trainingNumber;
+	int testingNumber;
 
 	bool debugMode;
 

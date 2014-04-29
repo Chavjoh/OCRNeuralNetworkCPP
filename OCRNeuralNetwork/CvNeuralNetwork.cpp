@@ -3,10 +3,10 @@
 
 #include "CvNeuralNetwork.h"
 
-CvNeuralNetwork::CvNeuralNetwork(string datasetPath, string trainingPath, string testPath, string nnParametersPath)
+CvNeuralNetwork::CvNeuralNetwork(string datasetPath, string trainingPath, string testPath, string nnParametersPath, int trainingNumber, int testingNumber)
 {
 	// Disable debug mode
-	this->debugMode = false;
+	this->debugMode = true;
 
 	// Dataset folder path
 	this->datasetPath = datasetPath;
@@ -20,19 +20,21 @@ CvNeuralNetwork::CvNeuralNetwork(string datasetPath, string trainingPath, string
 	// Neural Network parameters file
 	this->nnParametersPath = nnParametersPath;
 
-	if (CppTools::fileExists(this->nnParametersPath))
-	{
-		this->loadParameters();
-	}
-	else
+	// Training and testing sample number
+	this->trainingNumber = trainingNumber;
+	this->testingNumber = testingNumber;
+
+	if (!CppTools::fileExists(this->nnParametersPath))
 	{
 		this->computeParameters();
 	}
+
+	this->loadParameters();
 }
 
 CvNeuralNetwork::~CvNeuralNetwork()
 {
-	// Nothing
+	
 }
 
 void CvNeuralNetwork::setDebugMode(bool debugMode)
@@ -56,10 +58,10 @@ void CvNeuralNetwork::computeParameters()
 {
 	if (debugMode) cout << "CvNeuralNetwork::computeParameters() START" << endl;
 
-	Mat training_set(TRAINING_SAMPLES, CvNeuralNetwork::ATTRIBUTES, CV_32F);
-	Mat training_set_classifications(TRAINING_SAMPLES, CLASSES, CV_32F);
+	Mat training_set(this->trainingNumber, CvNeuralNetwork::ATTRIBUTES, CV_32F);
+	Mat training_set_classifications(this->trainingNumber, CvNeuralNetwork::CLASSES, CV_32F);
 
-	CvTools::readDataset((char*)trainingPath.c_str(), training_set, training_set_classifications, TRAINING_SAMPLES);
+	CvTools::readDataset((char*)trainingPath.c_str(), training_set, training_set_classifications, this->trainingNumber);
 
 	// The neural network has 3 layers :
 	// - 256 inputs nodes, one for each pixel of the normalized image
@@ -68,7 +70,7 @@ void CvNeuralNetwork::computeParameters()
 	Mat layers(3, 1, CV_32S);
 	layers.at<int>(0, 0) = CvNeuralNetwork::ATTRIBUTES; // Input layer
 	layers.at<int>(1, 0) = 16; // Hidden layer
-	layers.at<int>(2, 0) = CLASSES; // Output layer
+	layers.at<int>(2, 0) = CvNeuralNetwork::CLASSES; // Output layer
 
 	// Create the neural network (http://docs.opencv.org/modules/ml/doc/neural_networks.html)
 	if (debugMode) cout << "Creation of the Neural Network ..." << endl;
@@ -106,22 +108,22 @@ void CvNeuralNetwork::testParameters()
 {
 	if (debugMode) cout << "CvNeuralNetwork::testParameters() START" << endl;
 
-	Mat test_set(TEST_SAMPLES, CvNeuralNetwork::ATTRIBUTES, CV_32F);
-	Mat test_set_classifications(TEST_SAMPLES, CLASSES, CV_32F);
+	Mat test_set(this->testingNumber, CvNeuralNetwork::ATTRIBUTES, CV_32F);
+	Mat test_set_classifications(this->testingNumber, CvNeuralNetwork::CLASSES, CV_32F);
 
-	Mat classificationResult(1, CLASSES, CV_32F);
+	Mat classificationResult(1, CvNeuralNetwork::CLASSES, CV_32F);
 
-	CvTools::readDataset((char*)testPath.c_str(), test_set, test_set_classifications, TEST_SAMPLES);
+	CvTools::readDataset((char*)testPath.c_str(), test_set, test_set_classifications, this->testingNumber);
 
 	cv::Mat test_sample;
 	int correct_class = 0;
 	int wrong_class = 0;
 
 	// Classification matrix gives the count of classes to which the samples were classified.
-	int classification_matrix[CLASSES][CLASSES] = { {} };
+	int classification_matrix[CvNeuralNetwork::CLASSES][CvNeuralNetwork::CLASSES] = { {} };
 
 	// Foreach sample in test dataset
-	for (int tsample = 0; tsample < TEST_SAMPLES; tsample++) {
+	for (int tsample = 0; tsample < this->testingNumber; tsample++) {
 
 		// Extract the sample
 		test_sample = test_set.row(tsample);
@@ -160,21 +162,21 @@ void CvNeuralNetwork::testParameters()
 	}
 
 	printf("\nResults on the testing dataset\n"
-		"\tCorrect classification: %d (%g%%)\n"
-		"\tWrong classifications: %d (%g%%)\n",
-		correct_class, (double)correct_class * 100 / TEST_SAMPLES,
-		wrong_class, (double)wrong_class * 100 / TEST_SAMPLES);
+		"\tCorrect classification : %d (%g%%)\n"
+		"\tWrong classifications : %d (%g%%)\n",
+		correct_class, (double)correct_class * 100 / this->testingNumber,
+		wrong_class, (double)wrong_class * 100 / this->testingNumber);
 
 	cout << "   ";
-	for (int i = 0; i < CLASSES; i++)
+	for (int i = 0; i < CvNeuralNetwork::CLASSES; i++)
 	{
 		cout << i << "\t";
 	}
 	cout << "\n";
-	for (int row = 0; row<CLASSES; row++)
+	for (int row = 0; row < CvNeuralNetwork::CLASSES; row++)
 	{
 		cout << row << "  ";
-		for (int col = 0; col<CLASSES; col++)
+		for (int col = 0; col < CvNeuralNetwork::CLASSES; col++)
 		{
 			cout << classification_matrix[row][col] << "\t";
 		}

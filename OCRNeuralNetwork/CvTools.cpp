@@ -21,7 +21,10 @@ void CvTools::scaleDownImage(cv::Mat &originalImg, cv::Mat &scaledDownImage)
 		{
 			int yd = ceil((float)(y*originalImg.cols / 16));
 			int xd = ceil((float)(x*originalImg.rows / 16));
-			scaledDownImage.at<uchar>(x, y) = originalImg.at<uchar>(xd, yd);
+			if (yd > 0 && xd > 0)
+			{
+				scaledDownImage.at<uchar>(x, y) = originalImg.at<uchar>(xd, yd);
+			}
 		}
 	}
 }
@@ -174,6 +177,7 @@ Mat CvTools::parseImage(std::string imagePath)
 	CvTools::cropImage(output, output);
 
 	// Scale down image to 16x16
+	// resize(output, output, Size(16, 16));
 	CvTools::scaleDownImage(output, scaledDownImage);
 
 	return scaledDownImage;
@@ -199,25 +203,39 @@ void CvTools::imageToPixelValue(std::string imagePath, int* pixelValue)
 	CvTools::pixelToValue(scaledDownImage, pixelValue);
 }
 
-void CvTools::writeDataset(std::string datasetPath, int sampleNumber, std::string outputfile)
+void CvTools::writeDataset(std::string datasetPath, int sampleStart, int sampleStop, std::string outputfile)
 {
 	fstream file(outputfile, ios::out);
 
 	// Foreach sample in dataset
-	for (int sample = 1; sample <= sampleNumber; sample++)
+	for (int sample = sampleStart; sample <= sampleStop; sample++)
 	{
 		// Foreach character to learn
-		for (int character = 0; character < 10; character++)
+		for (int character = 0; character < CvNeuralNetwork::CLASSES; character++)
 		{
 			// Create absolute path of image indicated in parameter
-			std::string imagePath = datasetPath + "\\Sample" + CvTools::intToString(character + 1) + "\\" + CvTools::intToString(sample) + ".png";
+			std::string imagePath = datasetPath + "\\English\\Fnt\\Sample" + CvTools::intToString(character + 1) + "\\" + CvTools::intToString(sample) + ".png";
 
-			// Array containing pixel values of dataset image scaled to 16x16 (256 values)
-			int pixelValue[256];
-			CvTools::imageToPixelValue(imagePath, pixelValue);
+			// cout << imagePath << endl; 
+			
+			if ((sample >= 689 && sample <= 692) || (sample >= 873 && sample <= 880))
+			{
+				// Pass dataset with cv::imread error
+				// The font is probably too thin
+			}
+			else if (CppTools::fileExists(imagePath))
+			{
+				// Array containing pixel values of dataset image scaled to 16x16 (256 values)
+				int pixelValue[256];
+				CvTools::imageToPixelValue(imagePath, pixelValue);
 
-			// Write pixel array to stream
-			CvTools::writePixelValue(file, pixelValue, character);
+				// Write pixel array to stream
+				CvTools::writePixelValue(file, pixelValue, character);
+			}
+			else
+			{
+				cout << "Dataset sample not found : " << imagePath << endl;
+			}
 		}
 	}
 

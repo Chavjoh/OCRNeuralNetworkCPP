@@ -40,28 +40,38 @@ int _tmain(int argc, _TCHAR* argv[])
 	string testPath = datasetPath + "\\testset.txt";
 	string networkPath = datasetPath + "\\network.xml";
 
+	// Training and testing configuration
+	int trainingMinID = 1;
+	int trainingMaxID = 900;
+	int testingMinID = 901;
+	int testingMaxID = 1000;
+
 	// Create computed training file if not exists
 	if (!CppTools::fileExists(trainingPath))
 	{
 		cout << "Writing the training set ..." << endl;
-		CvTools::writeDataset(datasetPath, 305, datasetPath + "\\trainingset.txt");
+		CvTools::writeDataset(datasetPath, trainingMinID, trainingMaxID, datasetPath + "\\trainingset.txt");
 	}
 	
 	// Create computed testing file if not exists
 	if (!CppTools::fileExists(testPath))
 	{
 		cout << "Writing the test set ..." << endl;
-		CvTools::writeDataset(datasetPath, 130, datasetPath + "\\testset.txt");
+		CvTools::writeDataset(datasetPath, testingMinID, testingMaxID, datasetPath + "\\testset.txt");
 	}
 
 	// Create neural network for optical character recognition
-	CvNeuralNetwork neuralNetwork(datasetPath, trainingPath, testPath, networkPath);
+	CvNeuralNetwork neuralNetwork(datasetPath, trainingPath, testPath, networkPath, (trainingMaxID - trainingMinID), (testingMaxID - testingMinID));
 
+	// Run tests
+	neuralNetwork.testParameters();
+
+	/*
 	// Make some random tests
 	for (int charIndex = 1; charIndex < 11; ++charIndex)
 	{
 		// Select random file in a random group
-		int sampleGroupID = rand() % 10 + 1;//rand() % 62 + 1;
+		int sampleGroupID = rand() % CvNeuralNetwork::CLASSES + 1;
 		int sampleID = rand() % 1016 + 1;
 
 		// Define file path
@@ -82,6 +92,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			cout << filename << endl;
 		}
 	}
+	*/
 
 	system("PAUSE");
 	return 0;
