@@ -48,7 +48,6 @@ void CvTools::cropImage(cv::Mat &originalImage, cv::Mat &croppedImage)
 				tly = x;
 				break;
 			}
-
 		}
 		if (flag == 1)
 		{
@@ -69,7 +68,6 @@ void CvTools::cropImage(cv::Mat &originalImage, cv::Mat &croppedImage)
 				bry = x;
 				break;
 			}
-
 		}
 		if (flag == 1)
 		{
@@ -90,7 +88,6 @@ void CvTools::cropImage(cv::Mat &originalImage, cv::Mat &croppedImage)
 				tlx = y;
 				break;
 			}
-
 		}
 		if (flag == 1)
 		{
@@ -110,7 +107,6 @@ void CvTools::cropImage(cv::Mat &originalImage, cv::Mat &croppedImage)
 				brx = y;
 				break;
 			}
-
 		}
 		if (flag == 1)
 		{

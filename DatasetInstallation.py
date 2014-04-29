@@ -59,7 +59,7 @@ def untar(path, extract_path):
 		if item.name.find(".tgz") != -1 or item.name.find(".tar") != -1:
 			extract(item.name, "./" + item.name[:item.name.rfind('/')])
 
-def rename(dir, pattern):
+def renameIncremental(dir, pattern):
 	i = 0
 	for pathAndFilename in glob.iglob(os.path.join(dir, pattern)):
 		i += 1
@@ -74,17 +74,15 @@ def rename(dir, pattern):
 #                                                                              #
 #------------------------------------------------------------------------------#
 
-# If this is the main module, run this
 if __name__ == '__main__':
-	argsCount = len(sys.argv)
 
 	# Create argument parser to help user
 	parser = argparse.ArgumentParser(
-		description='Dataset installation for optical character recognition.'
+		description='Dataset installation used to train neural network for optical character recognition.'
 	)
 
 	# Show help if one of the arguments is missing
-	if argsCount != 1:
+	if len(sys.argv) != 1:
 		parser.print_help()
 		sys.exit()
 	
@@ -119,7 +117,7 @@ if __name__ == '__main__':
 		folderPath = sampleFolder + str(i).zfill(3);
 		
 		# Rename each file in the folder to be accessed more easily
-		rename(folderPath, r'*.png')
+		renameIncremental(folderPath, r'*.png')
 		
 		# Rename folder to be accessed more easily
 		os.rename(folderPath, sampleFolder + str(i));
